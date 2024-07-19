@@ -76,7 +76,13 @@ class path:
         self.directorys = dict(path_spider(self.root_parent))
 
     def __getitem__(self, key):
-        return self.directorys[key]
+        if isinstance(key, tuple):
+            for val in self.directorys.values():
+                if key[0] in val:
+                    if key[1] in val:
+                        return val
+        else:
+            return self.directorys[key]
 
     def change_dir(self, path_name):
         """
@@ -147,6 +153,7 @@ class config:
 
     def __getitem__(self, key):
         if isinstance(key, tuple):
+
             return literal_eval(self.parser[key[0]][key[1]])
         else:
             
@@ -178,7 +185,6 @@ class config:
              save_inplace=True,
              simplify_dicts=True,
              directory=None):
-        
         if simplify_dicts:
             for key, value in self.parser["default parameters"].items():
                 value = literal_eval(value)
@@ -186,15 +192,17 @@ class config:
                     for subkey, val in value.items():
                         self.__setitem__((key,subkey), val)
                     del self.parser["default parameters"][key]
-        
+
         if not save_inplace:
             p.change_dir("configs")
         if not filename:
             filename = self.name
+
         else:
             if filename[-4:] != ".ini":
                 filename += ".ini"
-        if directory:
+
+        if bool(directory):
             filename = os.path.join(directory, filename)
         with open(filename, 'w') as configfile:
                 self.parser.write(configfile)
@@ -406,6 +414,74 @@ class printer():
         writeout += "-" * length
         writeout += "".join(["\n" for i in range(border[1])])
         print(writeout)
+        
+    def inline(self, item):
+        print("\r"+item+"\r", end="")
+
+
+# MASTERARBEIT RESULTS PLOTTING
+def set_size(width_pt, fraction=1, subplots=(1, 1)):
+    """Set figure dimensions to sit nicely in our document.
+    Funktion von :'https://jwalton.info/Matplotlib-latex-PGF/'
+    Parameters
+    ----------
+    width_pt: float
+            Document width in points
+    fraction: float, optional
+            Fraction of the width which you wish the figure to occupy
+    subplots: array-like, optional
+            The number of rows and columns of subplots.
+    Returns
+    -------
+    fig_dim: tuple
+            Dimensions of figure in inches
+    """
+    # Width of figure (in pts)
+    fig_width_pt = width_pt * fraction
+    # Convert from pt to inches
+    inches_per_pt = 1 / 96
+
+    # Golden ratio to set aesthetic figure height
+    golden_ratio = (5**.5 - 1) / 2
+
+    # Figure width in inches
+    fig_width_in = fig_width_pt * inches_per_pt 
+    # Figure height in inches
+    fig_height_in = fig_width_in * golden_ratio * (subplots[0] / subplots[1])
+
+    return (fig_width_in, fig_height_in)
+
+def set_square_size(width_pt, fraction=1, subplots=(1, 1)):
+    """Set figure dimensions to sit nicely in our document.
+    Funktion von :'https://jwalton.info/Matplotlib-latex-PGF/'
+    Parameters
+    ----------
+    width_pt: float
+            Document width in points
+    fraction: float, optional
+            Fraction of the width which you wish the figure to occupy
+    subplots: array-like, optional
+            The number of rows and columns of subplots.
+    Returns
+    -------
+    fig_dim: tuple
+            Dimensions of figure in inches
+    """
+    # Width of figure (in pts)
+    fig_width_pt = width_pt * fraction
+    # Convert from pt to inches
+    inches_per_pt = 1 / 96
+
+    # Golden ratio to set aesthetic figure height
+    golden_ratio = 1
+
+    # Figure width in inches
+    fig_width_in = fig_width_pt * inches_per_pt 
+    # Figure height in inches
+    fig_height_in = fig_width_in * golden_ratio * (subplots[0] / subplots[1])
+
+    return (fig_width_in, fig_height_in)
+
 
 if __name__ == "__main__":
     
@@ -413,4 +489,4 @@ if __name__ == "__main__":
     c = printer()
     cfg = config(read=False)
     
-   
+    cfg["test"] = 123
