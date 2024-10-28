@@ -70,11 +70,13 @@ class path:
         self.root = os.getcwd()
         root_directorys = os.listdir()[:-1]
         self.root_parent = os.path.dirname(self.root)
+        
+        #self.root_parent = self.root
         for i in range(height-1):
             self.root_parent = os.path.dirname(self.root_parent)
-
+        
         self.directorys = dict(path_spider(self.root_parent))
-
+        
     def __getitem__(self, key):
         if isinstance(key, tuple):
             for val in self.directorys.values():
